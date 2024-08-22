@@ -23,7 +23,7 @@ module managedIdentity '../shared/managedidentity.bicep' = {
   }
 }
 
-module logging '../shared/logging.bicep' = {
+module logging 'logging.bicep' = {
   name: 'logging-${envLocation}-deployment'
   params: {
     appInsightsName: 'appi-${resourceToken}'
@@ -33,7 +33,7 @@ module logging '../shared/logging.bicep' = {
   }
 }
 
-module keyVault '../shared/keyvault.bicep' = {
+module keyVault 'keyvault.bicep' = {
   name: 'key-vault-${envLocation}-deployment'
   dependsOn: [
     managedIdentity
@@ -48,7 +48,7 @@ module keyVault '../shared/keyvault.bicep' = {
   }
 }
 
-module storageAccount '../shared/storage.bicep' = {
+module storageAccount 'storage.bicep' = {
   name: 'storage-account-${envLocation}-deployment'
   dependsOn: [
     keyVault
@@ -109,6 +109,7 @@ module servicebus 'servicebus.bicep' = {
   name: 'service-bus-${envLocation}-deployment'
   dependsOn: [
     managedIdentity
+    keyVault
   ]
   params: {
     namespaceName: 'sb${resourceToken}'
@@ -116,6 +117,7 @@ module servicebus 'servicebus.bicep' = {
     location: location
     tags: tags
     managedIdentityName: managedIdentity.outputs.managedIdentityName
+    keyVaultName: keyVault.outputs.keyVaultName
   }
 } 
 
