@@ -1,6 +1,5 @@
 param location string
 param namespaceName string
-param queueName string
 param secondaryNamespaceId string
 param managedIdentityName string
 param tags object
@@ -29,21 +28,25 @@ resource namespace 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' = {
   }
 }
 
-resource queue 'Microsoft.ServiceBus/namespaces/queues@2022-01-01-preview' = {
-  parent: namespace
-  name: queueName
-  properties: {
-    lockDuration: 'PT5M'
-    maxSizeInMegabytes: 1024
-    requiresDuplicateDetection: false
-    requiresSession: false
-    defaultMessageTimeToLive: 'P10675199DT2H48M5.4775807S'
-    deadLetteringOnMessageExpiration: false
-    duplicateDetectionHistoryTimeWindow: 'PT10M'
-    maxDeliveryCount: 10
-    autoDeleteOnIdle: 'P10675199DT2H48M5.4775807S'
-    enablePartitioning: false
-    enableExpress: false
+module queueOne 'queue.bicep' = {
+  name: 'ingress-queue-${namespaceName}-deployment'
+  dependsOn: [
+    namespace
+  ]
+  params: {
+    name: 'ingress'
+    namespaceName: namespaceName
+  }
+}
+
+module queueTwo 'queue.bicep' = {
+  name: 'processing-queue-${namespaceName}-deployment'
+  dependsOn: [
+    namespace
+  ]
+  params: {
+    name: 'processing'
+    namespaceName: namespaceName
   }
 }
 
@@ -57,5 +60,4 @@ resource serviceBusAlias 'Microsoft.ServiceBus/namespaces/disasterRecoveryConfig
 
 output namespaceId string = namespace.id
 output namespaceName string = namespace.name
-output queueId string = queue.id
 output pairingAlias string = serviceBusAlias.name

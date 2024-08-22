@@ -1,5 +1,3 @@
-targetScope = 'subscription'
-
 @minLength(1)
 @maxLength(64)
 @description('Name of the the environment which is used to generate a short unique hash used in all resources.')
@@ -12,18 +10,10 @@ param location string
 param tags object
 
 var envLocation = '${environmentName}-${location}'
-var resourceGroupName = 'rg-${envLocation}'
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
-
-resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: resourceGroupName
-  location: location
-  tags: tags
-}
 
 module managedIdentity '../shared/managedidentity.bicep' = {
   name: 'managed-identity-${envLocation}-deployment'
-  scope: rg
   params: {
     location: location
     managedIdentityName: 'id-${resourceToken}'
@@ -33,7 +23,6 @@ module managedIdentity '../shared/managedidentity.bicep' = {
 
 module logging '../shared/logging.bicep' = {
   name: 'logging-${envLocation}-deployment'
-  scope: rg
   params: {
     appInsightsName: 'appi-${resourceToken}'
     logAnalyticsWorkspaceName: 'law-${resourceToken}'
@@ -44,7 +33,6 @@ module logging '../shared/logging.bicep' = {
 
 module keyVault '../shared/keyvault.bicep' = {
   name: 'key-vault-${envLocation}-deployment'
-  scope: rg
   dependsOn: [
     managedIdentity
   ]
@@ -60,7 +48,6 @@ module keyVault '../shared/keyvault.bicep' = {
 
 module storageAccount '../shared/storage.bicep' = {
   name: 'storage-account-${envLocation}-deployment'
-  scope: rg
   dependsOn: [
     keyVault
   ]
@@ -75,7 +62,9 @@ module storageAccount '../shared/storage.bicep' = {
 
 module servicebus 'servicebus.bicep' = {
   name: 'service-bus-${envLocation}-deployment'
-  scope: rg
+  dependsOn: [
+    managedIdentity
+  ]
   params: {
     namespaceName: 'sb${resourceToken}'
     location: location
@@ -84,5 +73,4 @@ module servicebus 'servicebus.bicep' = {
   }
 } 
 
-output resourceGroupName string = rg.name
 output serviceBusNamespaceId string = servicebus.outputs.namespaceId
