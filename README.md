@@ -12,6 +12,10 @@ This project provides scripts and a custom Logic App solution to monitor Azure S
 - **Notification Alerts**: Sends alerts and notifications during failover events. Optionally include human approval process.
 - **Customizable**: Easily configurable to fit different failover requirements and scenarios.
 
+## Architecture
+
+![Architecture](/assets/architecture.png)
+
 ## Setup
 
 ### Clone Repository
@@ -77,10 +81,6 @@ This project is licensed under the [MIT License](LICENSE)
 ## Contributing
 
 Contributions are welcome! Please fork the repository and submit pull requests for any enhancements or bug fixes.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Support
 
