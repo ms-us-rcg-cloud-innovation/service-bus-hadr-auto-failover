@@ -12,32 +12,67 @@ This project provides scripts and a custom Logic App solution to monitor Azure S
 - **Notification Alerts**: Sends alerts and notifications during failover events. Optionally include human approval process.
 - **Customizable**: Easily configurable to fit different failover requirements and scenarios.
 
-## Prerequisites
+## Setup
 
-- Azure Subscription
-- Azure Service Bus Instances in multiple regions
-- Azure Logic App
-
-## Getting Started
-
-### Step 1: Clone the Repository
+### Clone Repository
 
 ```bash
 git clone https://github.com/ms-us-rcg-cloud-innovation/service-bus-hadr-auto-failover.git
 cd service-bus-hadr-auto-failover
 ```
 
-## Step 2: Configure Azure Resources
+### Check Environment
+
+Run the CheckEnvironment.ps1 script to ensure the latest CLIs and dependencies are installed. If any dependencies are missing, the script will output guidance on how to install.
+
+```powershell
+cd scripts
+.\CheckEnvironment.ps1
+```
+
+### Deploy
+
+Establish required environment variables:
+
+```powershell
+$env:AZURE_ENV_NAME="sb-hadr" # custom project name
+$env:AZURE_LOCATION_PRIMARY="eastus2" # azure region
+$env:AZURE_LOCATION_SECONDARY="centralus" # azure region
+```
+
+NOTE: The primary and secondary regions should be [paired regions](https://learn.microsoft.com/en-us/azure/reliability/cross-region-replication-azure#azure-paired-regions). Both regions should also [support availability zones](https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support#azure-regions-with-availability-zone-support) for recommended high availability.
+
+This project uses the [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/overview) to quickly deploy and tear down the resources and application files in Azure for demo purposes.
+
+To get started, authenticate with an Azure Subscription ([details](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/reference#azd-auth-login)):
+
+```powershell
+azd auth login
+```
+
+To provision the necessary Azure resoruces and deploy the application, run the UP command:
+
+```powershell
+azd up
+```
+
+Once the infrastructure is established and the application is deployed, navigate to the [Azure Portal](https://portal.azure.com) to view the provisioned resources.
+
+## Verify
 
 TODO
 
-## Step 3: Deploy Scripts
+## Clean Up Azure Resources
 
-TODO
+To remove the provisioned Resources run the following AZD command:
 
-## Step 4: Test Failover
+```powershell
+azd down --force --purge
+```
 
-TODO
+## License
+
+This project is licensed under the [MIT License](LICENSE)
 
 ## Contributing
 

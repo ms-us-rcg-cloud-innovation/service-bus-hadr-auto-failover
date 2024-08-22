@@ -56,4 +56,6 @@ resource serviceBusAlias 'Microsoft.ServiceBus/namespaces/disasterRecoveryConfig
 }
 
 output namespaceId string = namespace.id
+output namespaceName string = namespace.name
 output queueId string = queue.id
+output pairingAlias string = serviceBusAlias.name

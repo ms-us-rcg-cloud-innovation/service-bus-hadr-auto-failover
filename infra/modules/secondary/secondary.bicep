@@ -84,16 +84,5 @@ module servicebus 'servicebus.bicep' = {
   }
 } 
 
+output resourceGroupName string = rg.name
 output serviceBusNamespaceId string = servicebus.outputs.namespaceId
-
-output AZURE_RESOURCE_GROUP_NAME string = rg.name
-output AZURE_LOCATION string = location
-output AZURE_TENANT_ID string = subscription().tenantId
-output AZURE_SUBSCRIPTION_ID string = subscription().subscriptionId
-output AZURE_STORAGE_ACCOUNT_NAME string = storageAccount.outputs.storageAccountName
-output AZURE_STORAGE_ACCOUNT_FILE_SHARE_NAME string = storageAccount.outputs.fileShareName
-output AZURE_STORAGE_ACCOUNT_BLOB_CONTAINER_NAME string = storageAccount.outputs.blobContainerName
-output AZURE_KEY_VAULT_NAME string = keyVault.outputs.keyVaultName
-output AZURE_APP_INSIGHTS_NAME string = logging.outputs.appInsightsName
-output AZURE_LOG_ANALYTICS_WORKSPACE_NAME string = logging.outputs.logAnalyticsWorkspaceName
-output AZURE_MANAGED_IDENTITY_NAME string = managedIdentity.outputs.managedIdentityName

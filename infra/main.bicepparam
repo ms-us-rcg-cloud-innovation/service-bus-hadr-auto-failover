@@ -1,4 +1,6 @@
 using './main.bicep'
 
-param environmentName = 'sb-hadr' //readEnvironmentVariable('AZURE_ENV_NAME')
+param environmentName = readEnvironmentVariable('AZURE_ENV_NAME')
+param locationPrimary = readEnvironmentVariable('AZURE_LOCATION_PRIMARY')
+param locationSecondary = readEnvironmentVariable('AZURE_LOCATION_SECONDARY')
 
