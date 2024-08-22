@@ -62,11 +62,27 @@ module storageAccount 'storage.bicep' = {
   }
 }
 
+module servicebus './service-bus/namespace.bicep' = {
+  name: 'service-bus-${envLocation}-deployment'
+  dependsOn: [
+    managedIdentity
+    keyVault
+  ]
+  params: {
+    namespaceName: 'sb${resourceToken}'
+    secondaryNamespaceId: secondaryServiceBusNamespaceId
+    location: location
+    tags: tags
+    managedIdentityName: managedIdentity.outputs.managedIdentityName
+  }
+} 
+
 module logicApp 'logicapp.bicep' = {
   name: 'logic-app-${envLocation}-deployment'
   dependsOn: [
     managedIdentity
     storageAccount
+    servicebus
   ]
   params: {
     name: 'logic-${resourceToken}'
@@ -77,10 +93,9 @@ module logicApp 'logicapp.bicep' = {
     tags: tags
     logAnalyticsWorkspaceName: logging.outputs.logAnalyticsWorkspaceName
     managedIdentityName: managedIdentity.outputs.managedIdentityName
-    storageAccountName: storageAccount.outputs.storageAccountName
-    storageAccountContainerName: storageAccount.outputs.blobContainerName
     fileShareName: storageAccount.outputs.fileShareName
     storageAcctConnStringName: storageAccount.outputs.connStringSecretName
+    serviceBusConnectionName: servicebus.outputs.connectionName
   }
 }
 
@@ -89,6 +104,7 @@ module functionApp 'functionapp.bicep' = {
   dependsOn: [
     managedIdentity
     storageAccount
+    servicebus
   ]
   params: {
     name: 'func-${resourceToken}'
@@ -104,22 +120,6 @@ module functionApp 'functionapp.bicep' = {
     storageAcctContainerName: storageAccount.outputs.blobContainerName
   }
 }
-
-module servicebus 'servicebus.bicep' = {
-  name: 'service-bus-${envLocation}-deployment'
-  dependsOn: [
-    managedIdentity
-    keyVault
-  ]
-  params: {
-    namespaceName: 'sb${resourceToken}'
-    secondaryNamespaceId: secondaryServiceBusNamespaceId
-    location: location
-    tags: tags
-    managedIdentityName: managedIdentity.outputs.managedIdentityName
-    keyVaultName: keyVault.outputs.keyVaultName
-  }
-} 
 
 output serviceBusNamespaceId string = servicebus.outputs.namespaceId
 output serviceBusNamespaceName string = servicebus.outputs.namespaceName

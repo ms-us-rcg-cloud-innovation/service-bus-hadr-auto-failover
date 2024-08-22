@@ -2,14 +2,9 @@ param location string
 param namespaceName string
 param secondaryNamespaceId string
 param managedIdentityName string
-param keyVaultName string
 param tags object
 
-resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
-  name: keyVaultName
-}
-
-module namespace '../shared/servicebus.bicep' = {
+module namespace '../../shared/servicebus.bicep' = {
   name: 'service-bus-${namespaceName}-deployment'
   params: {
     location: location
@@ -58,19 +53,17 @@ resource serviceBusAlias 'Microsoft.ServiceBus/namespaces/disasterRecoveryConfig
   }
 }
 
-var keyARMEndpoint = '${createdNamespace.id}/AuthorizationRules/RootManageSharedAccessKey'
-
-resource serviceBusConnectionStringSecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
-  parent: keyVault
-  dependsOn: [
-    serviceBusAlias
-  ]
-  name: 'sb-conn-string'
-  properties: {
-    value: listKeys(keyARMEndpoint, createdNamespace.apiVersion).aliasPrimaryConnectionString
+module connection 'connection.bicep' = {
+  name: 'service-bus-${namespaceName}-connection-deployment'
+  params: {
+    location: location
+    tags: tags
+    namespaceEndpoint: 'sb://${serviceBusAlias.name}.servicebus.windows.net'
+    managedIdentityName: managedIdentityName
   }
 }
 
 output namespaceId string = createdNamespace.id
 output namespaceName string = namespace.name
 output pairingAlias string = serviceBusAlias.name
+output connectionName string = connection.outputs.name

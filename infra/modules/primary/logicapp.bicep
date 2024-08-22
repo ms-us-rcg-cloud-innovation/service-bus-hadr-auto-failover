@@ -6,11 +6,9 @@ param logAnalyticsWorkspaceName string
 param appInsightsName string
 param keyVaultName string
 param fileShareName string
+param serviceBusConnectionName string
 param storageAcctConnStringName string
 param tags object
-
-param storageAccountName string
-param storageAccountContainerName string
 
 resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2021-09-30-preview' existing = {
   name: managedIdentityName
@@ -26,6 +24,10 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06
 
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
   name: keyVaultName
+}
+
+resource serviceBusConnection 'Microsoft.Web/connections@2016-06-01' existing = {
+  name: serviceBusConnectionName
 }
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2021-03-01' = {
@@ -79,10 +81,9 @@ resource logicAppAppConfigSettings 'Microsoft.Web/sites/config@2022-03-01' = {
     WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${storageAcctConnStringName})'
     WEBSITE_CONTENTSHARE: fileShareName
     AZURE_MANAGED_IDENTITY_ID: managedIdentity.id
-    AZURE_STORAGE_ACCOUNT_NAME: storageAccountName
-    AZURE_STORAGE_ACCOUNT_BLOB_ENDPOINT: 'https://${storageAccountName}.blob.${environment().suffixes.storage}'
-    AZURE_STORAGE_ACCOUNT_QUEUE_ENDPOINT: 'https://${storageAccountName}.queue.${environment().suffixes.storage}'
-    AZURE_STORAGE_ACCOUNT_CONTAINER_NAME: storageAccountContainerName
+    SERVICEBUS_CONNECTION_API_ID: serviceBusConnection.properties.api.id // subscriptionResourceId('Microsoft.Web/locations/managedApis', location, 'servicebus') // '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Web/locations/${location}/managedApis/servicebus'
+    SERVICEBUS_CONNECTION_RESOURCE_ID: serviceBusConnection.id // '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Web/connections/servicebus'
+    SERVICEBUS_CONNECTION_RUNTIME_URL: serviceBusConnection.properties.connectionRuntimeUrl
   }
 }
 
