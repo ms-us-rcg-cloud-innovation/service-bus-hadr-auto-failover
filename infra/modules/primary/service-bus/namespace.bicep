@@ -2,6 +2,10 @@ param location string
 param namespaceName string
 param secondaryNamespaceId string
 param managedIdentityName string
+
+@description('If true, the Service Bus namespace will be created with Geo-Replication enabled. If false, the Service Bus namespace will be created without Geo-Replication.')
+param georeplicate bool
+
 param tags object
 
 module namespace '../../shared/servicebus.bicep' = {
@@ -11,6 +15,7 @@ module namespace '../../shared/servicebus.bicep' = {
     namespaceName: namespaceName
     managedIdentityName: managedIdentityName
     tags: tags
+    sku: georeplicate ? 'Premium' : 'Standard'
   }
 }
 
@@ -40,7 +45,7 @@ resource createdNamespace 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' e
   name: namespaceName
 }
 
-resource serviceBusAlias 'Microsoft.ServiceBus/namespaces/disasterRecoveryConfigs@2022-10-01-preview' = {
+resource serviceBusAlias 'Microsoft.ServiceBus/namespaces/disasterRecoveryConfigs@2022-10-01-preview' = if (georeplicate) {
   parent: createdNamespace
   dependsOn: [
     namespace
@@ -53,12 +58,14 @@ resource serviceBusAlias 'Microsoft.ServiceBus/namespaces/disasterRecoveryConfig
   }
 }
 
+var endpoint = georeplicate ? 'sb://${serviceBusAlias.name}.servicebus.windows.net' : 'sb://${createdNamespace.name}.servicebus.windows.net'
+
 module connection 'connection.bicep' = {
   name: 'service-bus-${namespaceName}-connection-deployment'
   params: {
     location: location
     tags: tags
-    namespaceEndpoint: 'sb://${serviceBusAlias.name}.servicebus.windows.net'
+    namespaceEndpoint: endpoint
     managedIdentityName: managedIdentityName
   }
 }

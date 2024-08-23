@@ -42,6 +42,10 @@ Establish required environment variables:
 $env:AZURE_ENV_NAME="sb-hadr" # custom project name
 $env:AZURE_LOCATION_PRIMARY="eastus2" # azure region
 $env:AZURE_LOCATION_SECONDARY="centralus" # azure region
+
+# optional flag to test apps and logic without multiple premium Service Bus instances to reduce costs when testing
+# this value should be true to test multi region pairing and automated failover logic
+$env:AZURE_SERVICEBUS_GEO_REPLICATE=true
 ```
 
 NOTE: The primary and secondary regions should be [paired regions](https://learn.microsoft.com/en-us/azure/reliability/cross-region-replication-azure#azure-paired-regions). Both regions should also [support availability zones](https://learn.microsoft.com/en-us/azure/reliability/availability-zones-service-support#azure-regions-with-availability-zone-support) for recommended high availability.

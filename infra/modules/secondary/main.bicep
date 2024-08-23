@@ -31,6 +31,7 @@ module servicebus '../shared/servicebus.bicep' = {
     location: location
     tags: tags
     managedIdentityName: managedIdentity.outputs.managedIdentityName
+    sku: 'Premium'
   }
 } 
 

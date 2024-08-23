@@ -1,19 +1,28 @@
 param location string
 param namespaceName string
 param managedIdentityName string
+@allowed([
+  'Basic'
+  'Standard'
+  'Premium'
+])
+param sku string
 param tags object
 
 resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2021-09-30-preview' existing = {
   name: managedIdentityName
 }
 
+var capacity = sku == 'Basic' ? 1 : sku == 'Standard' ? 2 : 4
+var zoneRedundant = sku == 'Premium'
+
 resource namespace 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' = {
   name: namespaceName
   location: location
   sku: {
-    name: 'Premium'
-    tier: 'Premium'
-    capacity: 4
+    name: sku
+    tier: sku
+    capacity: capacity
   }
   tags: tags
   identity: {
@@ -23,7 +32,7 @@ resource namespace 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' = {
     }
   }
   properties: {
-    zoneRedundant: true
+    zoneRedundant: zoneRedundant
   }
 }
 

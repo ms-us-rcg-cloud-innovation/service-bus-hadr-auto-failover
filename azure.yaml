@@ -1,12 +1,12 @@
 name: service-bus-hadr-auto-failover
 infra:
     provider: "bicep"
-hooks:
-  predown:
-    shell: pwsh
-    continueOnError: false
-    interactive: false
-    run: ./scripts/BreakServiceBusPairing.ps1
+# hooks:
+#   predown:
+#     shell: pwsh
+#     continueOnError: false
+#     interactive: false
+#     run: ./scripts/BreakServiceBusPairing.ps1
 #   predeploy:
 #     shell: pwsh
 #     continueOnError: false

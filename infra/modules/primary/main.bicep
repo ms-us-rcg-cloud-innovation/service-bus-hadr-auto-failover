@@ -7,6 +7,9 @@ param environmentName string
 @description('Region for resources. This location should support Availability Zones and should have a paired region that also supports Availability Zones.')
 param location string
 
+@description('If true, the Service Bus namespace will be created with Geo-Replication enabled. If false, the Service Bus namespace will be created without Geo-Replication.')
+param georeplicate bool
+
 param secondaryServiceBusNamespaceId string
 
 param tags object
@@ -74,6 +77,7 @@ module servicebus './service-bus/namespace.bicep' = {
     location: location
     tags: tags
     managedIdentityName: managedIdentity.outputs.managedIdentityName
+    georeplicate: georeplicate
   }
 } 
 

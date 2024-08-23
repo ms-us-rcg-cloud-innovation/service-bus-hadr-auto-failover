@@ -13,17 +13,20 @@ param locationPrimary string
 @description('Secondary region for resources. This location should support Availability Zones and should have a paired region that also supports Availability Zones.')
 param locationSecondary string
 
+@description('If true, the Service Bus namespace will be created with Geo-Replication enabled. If false, the Service Bus namespace will be created without Geo-Replication.')
+param georeplicate bool = true
+
 var tags = {
   'azd-env-name': environmentName
 }
 
-resource rgSecondary 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource rgSecondary 'Microsoft.Resources/resourceGroups@2021-04-01' = if (georeplicate) {
   name: 'rg-${environmentName}-secondary-${locationSecondary}'
   location: locationSecondary
   tags: tags
 }
 
-module secondary 'modules/secondary/main.bicep' = {
+module secondary 'modules/secondary/main.bicep' = if (georeplicate) {
   name: 'secondary-${environmentName}-deployment'
   scope: rgSecondary
   params: {
@@ -39,17 +42,18 @@ resource rgPrimary 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   tags: tags
 }
 
+var primaryDependsOn = georeplicate ? [secondary] : []
+
 module primary 'modules/primary/main.bicep' = {
   name: 'primary-${environmentName}-deployment'
   scope: rgPrimary
-  dependsOn: [
-    secondary
-  ]
+  dependsOn: primaryDependsOn
   params: {
     environmentName: environmentName
     location: locationPrimary
     tags: tags
-    secondaryServiceBusNamespaceId: secondary.outputs.serviceBusNamespaceId
+    secondaryServiceBusNamespaceId: georeplicate ? secondary.outputs.serviceBusNamespaceId : ''
+    georeplicate: georeplicate
   }
 }
 
