@@ -2,12 +2,36 @@
     "definition": {
         "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
         "actions": {
-
+          "Send_message": {
+            "type": "ApiConnection",
+            "inputs": {
+              "host": {
+                "connection": {
+                  "referenceName": "servicebus"
+                }
+              },
+              "method": "post",
+              "body": {
+                "ContentData": "@{base64('Custom test message.')}"
+              },
+              "path": "/@{encodeURIComponent(encodeURIComponent('ingress'))}/messages",
+              "queries": {
+                "systemProperties": "None"
+              }
+            },
+            "runAfter": {}
+          }
         },
         "contentVersion": "1.0.0.0",
         "outputs": {},
         "triggers": {
-
+          "Recurrence": {
+            "type": "Recurrence",
+            "recurrence": {
+              "interval": 10,
+              "frequency": "Second"
+            }
+          }
         }
     },
     "kind": "Stateful"
