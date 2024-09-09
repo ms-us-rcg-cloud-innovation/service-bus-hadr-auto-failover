@@ -25,6 +25,12 @@ git clone https://github.com/ms-us-rcg-cloud-innovation/service-bus-hadr-auto-fa
 cd service-bus-hadr-auto-failover
 ```
 
+### Setup Java Environment
+
+Setup local [Java development environment for Azure Functions](https://learn.microsoft.com/en-us/azure/azure-functions/create-first-function-vs-code-java#configure-your-environment).
+
+Also ensure [local environment variable JAVA_HOME is set](https://docs.oracle.com/cd/E19182-01/821-0917/inst_jdk_javahome_t/index.html) and pointing to installed Java instance.
+
 ### Check Environment
 
 Run the CheckEnvironment.ps1 script to ensure the latest CLIs and dependencies are installed. If any dependencies are missing, the script will output guidance on how to install.
