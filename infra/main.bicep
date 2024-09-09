@@ -58,5 +58,6 @@ module primary 'modules/primary/main.bicep' = {
 }
 
 output AZURE_RESOURCE_GROUP_NAME string = rgPrimary.name
+output AZURE_LOGIC_APP_NAME string = primary.outputs.logicAppName
 output AZURE_SERVICEBUS_PRIMARY_NAMESPACE string = primary.outputs.serviceBusNamespaceName
 output AZURE_SERVICEBUS_PAIRING_ALIAS string = primary.outputs.serviceBusPairingAlias

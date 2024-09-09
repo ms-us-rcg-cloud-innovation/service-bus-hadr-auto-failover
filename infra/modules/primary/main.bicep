@@ -65,18 +65,31 @@ module storageAccount 'storage.bicep' = {
   }
 }
 
-module servicebus './service-bus/namespace.bicep' = {
+module servicebusNamespace '../shared/servicebus.bicep' = {
   name: 'service-bus-${envLocation}-deployment'
+  params: {
+    location: location
+    namespaceName: 'sb${resourceToken}'
+    managedIdentityName: managedIdentity.outputs.managedIdentityName
+    tags: tags
+    sku: georeplicate ? 'Premium' : 'Standard'
+  }
+}
+
+module servicebusAppItems './service-bus/main.bicep' = {
+  name: 'service-bus-items-${envLocation}-deployment'
   dependsOn: [
+    servicebusNamespace
     managedIdentity
     keyVault
   ]
   params: {
-    namespaceName: 'sb${resourceToken}'
+    namespaceName: servicebusNamespace.outputs.namespaceName
     secondaryNamespaceId: secondaryServiceBusNamespaceId
     location: location
     tags: tags
     managedIdentityName: managedIdentity.outputs.managedIdentityName
+    keyVaultName: keyVault.outputs.keyVaultName
     georeplicate: georeplicate
   }
 } 
@@ -86,7 +99,8 @@ module logicApp 'logicapp.bicep' = {
   dependsOn: [
     managedIdentity
     storageAccount
-    servicebus
+    servicebusNamespace
+    servicebusAppItems
   ]
   params: {
     name: 'logic-${resourceToken}'
@@ -97,9 +111,8 @@ module logicApp 'logicapp.bicep' = {
     tags: tags
     logAnalyticsWorkspaceName: logging.outputs.logAnalyticsWorkspaceName
     managedIdentityName: managedIdentity.outputs.managedIdentityName
-    fileShareName: storageAccount.outputs.fileShareName
-    storageAcctConnStringName: storageAccount.outputs.connStringSecretName
-    serviceBusConnectionName: servicebus.outputs.connectionName
+    storageAcctConnStringSecretName: storageAccount.outputs.connStringSecretName
+    serviceBusConnStringSecretName: servicebusAppItems.outputs.connStringSecretName
   }
 }
 
@@ -108,7 +121,8 @@ module functionApp 'functionapp.bicep' = {
   dependsOn: [
     managedIdentity
     storageAccount
-    servicebus
+    servicebusNamespace
+    servicebusAppItems
   ]
   params: {
     name: 'func-${resourceToken}'
@@ -121,11 +135,11 @@ module functionApp 'functionapp.bicep' = {
     managedIdentityName: managedIdentity.outputs.managedIdentityName
     storageAcctConnStringName: storageAccount.outputs.connStringSecretName
     fileShareName: storageAccount.outputs.fileShareName
-    storageAcctContainerName: storageAccount.outputs.blobContainerName
   }
 }
 
-output serviceBusNamespaceId string = servicebus.outputs.namespaceId
-output serviceBusNamespaceName string = servicebus.outputs.namespaceName
-output serviceBusPairingAlias string = servicebus.outputs.pairingAlias
+output logicAppName string = logicApp.outputs.name
+output serviceBusNamespaceId string = servicebusNamespace.outputs.namespaceId
+output serviceBusNamespaceName string = servicebusNamespace.outputs.namespaceName
+output serviceBusPairingAlias string = servicebusAppItems.outputs.pairingAlias
 

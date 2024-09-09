@@ -69,3 +69,4 @@ resource senderRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-0
 }
 
 output namespaceId string = namespace.id
+output namespaceName string = namespace.name

@@ -2,21 +2,19 @@ param location string
 param namespaceName string
 param secondaryNamespaceId string
 param managedIdentityName string
+param keyVaultName string
 
 @description('If true, the Service Bus namespace will be created with Geo-Replication enabled. If false, the Service Bus namespace will be created without Geo-Replication.')
 param georeplicate bool
 
 param tags object
 
-module namespace '../../shared/servicebus.bicep' = {
-  name: 'service-bus-${namespaceName}-deployment'
-  params: {
-    location: location
-    namespaceName: namespaceName
-    managedIdentityName: managedIdentityName
-    tags: tags
-    sku: georeplicate ? 'Premium' : 'Standard'
-  }
+resource namespace 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' existing = {
+  name: namespaceName
+}
+
+resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
+  name: keyVaultName
 }
 
 module queueIngress 'queue.bicep' = {
@@ -41,14 +39,9 @@ module queueProcessing 'queue.bicep' = {
   }
 }
 
-resource createdNamespace 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' existing = {
-  name: namespaceName
-}
-
 resource serviceBusAlias 'Microsoft.ServiceBus/namespaces/disasterRecoveryConfigs@2022-10-01-preview' = if (georeplicate) {
-  parent: createdNamespace
+  parent: namespace
   dependsOn: [
-    namespace
     queueIngress
     queueProcessing
   ]
@@ -58,10 +51,23 @@ resource serviceBusAlias 'Microsoft.ServiceBus/namespaces/disasterRecoveryConfig
   }
 }
 
-var endpoint = georeplicate ? 'sb://${serviceBusAlias.name}.servicebus.windows.net' : 'sb://${createdNamespace.name}.servicebus.windows.net'
+var endpoint = georeplicate ? 'sb://${serviceBusAlias.name}.servicebus.windows.net' : 'sb://${namespace.name}.servicebus.windows.net'
+var serviceBusResourceId = georeplicate ? serviceBusAlias.id : namespace.id
+var apiVersion = georeplicate ? serviceBusAlias.apiVersion : namespace.apiVersion
+var dependsOn = georeplicate ? [serviceBusAlias] : [namespace]
+
+resource serviceBusConnectionStringSecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+  parent: keyVault
+  name: 'sb-conn-string'
+  dependsOn: dependsOn
+  properties: {
+    value: 'Endpoint=${endpoint}/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=${listKeys('${serviceBusResourceId}/AuthorizationRules/RootManageSharedAccessKey', apiVersion).primaryKey}'
+  }
+}
 
 module connection 'connection.bicep' = {
   name: 'service-bus-${namespaceName}-connection-deployment'
+  dependsOn: dependsOn
   params: {
     location: location
     tags: tags
@@ -70,7 +76,6 @@ module connection 'connection.bicep' = {
   }
 }
 
-output namespaceId string = createdNamespace.id
-output namespaceName string = namespace.name
 output pairingAlias string = serviceBusAlias.name
 output connectionName string = connection.outputs.name
+output connStringSecretName string = serviceBusConnectionStringSecret.name

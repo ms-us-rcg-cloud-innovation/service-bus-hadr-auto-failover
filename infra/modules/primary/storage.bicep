@@ -32,31 +32,13 @@ resource fileServices 'Microsoft.Storage/storageAccounts/fileServices@2023-01-01
 
 resource fileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01' = {
   parent: fileServices
-  name: 'sptoblobshare'
+  name: 'funcshare'
   properties: {}
 }
 
 resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' = {
   name: 'default'
   parent: storageAccount
-  properties: {}
-}
-
-resource blobContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
-  parent: blobServices
-  name: 'sptoblobcontainer'
-  properties: {}
-}
-
-resource queueServices 'Microsoft.Storage/storageAccounts/queueServices@2023-01-01' = {
-  name: 'default'
-  parent: storageAccount
-  properties: {}
-}
-
-resource queue 'Microsoft.Storage/storageAccounts/queueServices/queues@2022-09-01' = {
-  parent: queueServices
-  name: 'sharepoint-pages'
   properties: {}
 }
 
@@ -70,6 +52,12 @@ resource storageAccountConnectionStringSecret 'Microsoft.KeyVault/vaults/secrets
   }
 }
 
+@description('This is the built-in Storage Account Contributor role. See https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#security')
+resource storageAccountContributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
+  scope: subscription()
+  name: '17d1049b-9a84-46fb-8f53-869881c3d3ab'
+}
+
 @description('This is the built-in Storage Blob Data Contributor role. See https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#security')
 resource storageBlobDataContributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
   scope: subscription()
@@ -80,6 +68,16 @@ resource storageBlobDataContributorRoleDefinition 'Microsoft.Authorization/roleD
 resource storageQueueDataContributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
   scope: subscription()
   name: '974c5e8b-45b9-4653-ba55-5f855dd0fb88'
+}
+
+resource storageAccountContributorRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
+  name: guid(storageAccount.id, managedIdentity.id, storageAccountContributorRoleDefinition.id)
+  scope: storageAccount
+  properties: {
+    roleDefinitionId: storageAccountContributorRoleDefinition.id
+    principalId: managedIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+  }
 }
 
 resource blobDataContributorRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
@@ -102,42 +100,8 @@ resource queueDataContributorRoleAssignment 'Microsoft.Authorization/roleAssignm
   }
 }
 
-resource lifecycleRemoveBlobs 'Microsoft.Storage/storageAccounts/managementPolicies@2023-01-01' = {
-  name: 'default'
-  parent: storageAccount
-  properties: {
-    policy: {
-      rules: [
-        {
-          definition: {
-            actions: {
-              baseBlob: {
-                delete: {
-                  daysAfterModificationGreaterThan: 1
-                }
-              }
-            }
-            filters: {
-              blobTypes: [
-                'blockBlob'
-              ]
-              prefixMatch: [
-                '${blobContainer.name}/'
-              ]
-            }
-          }
-          enabled: true
-          name: 'remove-sharepoint-indexed-blobs'
-          type: 'Lifecycle'
-        }
-      ]
-    }
-  }
-}
-
 output id string = storageAccount.id
 output storageAccountName string = storageAccount.name
-output fileShareName string = fileShare.name
-output blobContainerName string = blobContainer.name
 output connStringSecretName string = storageAccountConnectionStringSecret.name
 output endpoint string = 'https://${storageAccount.name}.blob.${environment().suffixes.storage}'
+output fileShareName string = fileShare.name
