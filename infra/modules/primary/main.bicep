@@ -111,6 +111,7 @@ module logicApp 'logicapp.bicep' = {
     tags: tags
     logAnalyticsWorkspaceName: logging.outputs.logAnalyticsWorkspaceName
     managedIdentityName: managedIdentity.outputs.managedIdentityName
+    fileShareName: storageAccount.outputs.logicAppFileShareName
     storageAcctConnStringSecretName: storageAccount.outputs.connStringSecretName
     serviceBusConnStringSecretName: servicebusAppItems.outputs.connStringSecretName
   }
@@ -134,7 +135,7 @@ module functionApp 'functionapp.bicep' = {
     logAnalyticsWorkspaceName: logging.outputs.logAnalyticsWorkspaceName
     managedIdentityName: managedIdentity.outputs.managedIdentityName
     storageAcctConnStringName: storageAccount.outputs.connStringSecretName
-    fileShareName: storageAccount.outputs.fileShareName
+    fileShareName: storageAccount.outputs.funcFileShareName
   }
 }
 

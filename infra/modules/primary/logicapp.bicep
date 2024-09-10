@@ -5,6 +5,7 @@ param managedIdentityName string
 param logAnalyticsWorkspaceName string
 param appInsightsName string
 param keyVaultName string
+param fileShareName string
 param serviceBusConnStringSecretName string
 param storageAcctConnStringSecretName string
 param tags object
@@ -71,9 +72,11 @@ resource logicAppAppConfigSettings 'Microsoft.Web/sites/config@2022-03-01' = {
     ApplicationInsightsAgent_EXTENSION_VERSION: '~3'
     XDT_MicrosoftApplicationInsights_Mode: 'Recommended'
     FUNCTIONS_EXTENSION_VERSION: '~4'
-    AzureWebJobsStorage: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${storageAcctConnStringSecretName})'
-    SERVICE_BUS_CONNECTION_STRING: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${serviceBusConnStringSecretName})'
     FUNCTIONS_WORKER_RUNTIME: 'node'
+    AzureWebJobsStorage: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${storageAcctConnStringSecretName})'
+    WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${storageAcctConnStringSecretName})'
+    WEBSITE_CONTENTSHARE: fileShareName
+    SERVICE_BUS_CONNECTION_STRING: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${serviceBusConnStringSecretName})'
   }
 }
 

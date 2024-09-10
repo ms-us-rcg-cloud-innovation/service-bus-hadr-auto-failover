@@ -30,9 +30,15 @@ resource fileServices 'Microsoft.Storage/storageAccounts/fileServices@2023-01-01
   }
 }
 
-resource fileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01' = {
+resource funcFileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01' = {
   parent: fileServices
   name: 'funcshare'
+  properties: {}
+}
+
+resource logicFileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01' = {
+  parent: fileServices
+  name: 'logicappshare'
   properties: {}
 }
 
@@ -104,4 +110,5 @@ output id string = storageAccount.id
 output storageAccountName string = storageAccount.name
 output connStringSecretName string = storageAccountConnectionStringSecret.name
 output endpoint string = 'https://${storageAccount.name}.blob.${environment().suffixes.storage}'
-output fileShareName string = fileShare.name
+output funcFileShareName string = funcFileShare.name
+output logicAppFileShareName string = logicFileShare.name

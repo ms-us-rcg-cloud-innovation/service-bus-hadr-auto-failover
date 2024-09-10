@@ -1,25 +1,15 @@
 {
-    "managedApiConnections": {
-        "servicebus": {
-            "api": {
-                "id": "@appsetting('SERVICEBUS_CONNECTION_API_ID')"
+    "managedApiConnections": {},
+    "serviceProviderConnections": {
+        "serviceBus": {
+            "displayName": "servicebus-connection",
+            "parameterSetName": "connectionString",
+            "parameterValues": {
+                "connectionString": "@appsetting('SERVICE_BUS_CONNECTION_STRING')"
             },
-            "authentication": {
-                "identity": "@appsetting('AZURE_MANAGED_IDENTITY_ID')",
-                "type": "ManagedServiceIdentity"
-            },
-            "connection": {
-                "id": "@appsetting('SERVICEBUS_CONNECTION_RESOURCE_ID')"
-            },
-            "connectionProperties": {
-                "authentication": {
-                    "audience": "https://servicebus.azure.net",
-                    "identity": "@appsetting('AZURE_MANAGED_IDENTITY_ID')",
-                    "type": "ManagedServiceIdentity"
-                }
-            },
-            "connectionRuntimeUrl": "@appsetting('SERVICEBUS_CONNECTION_RUNTIME_URL')"
+            "serviceProvider": {
+                "id": "/serviceProviders/serviceBus"
+            }
         }
-    },
-    "serviceProviderConnections": {}
+    }
 }

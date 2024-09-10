@@ -19,9 +19,6 @@ resource connection 'Microsoft.Web/connections@2016-06-01' = {
       id: subscriptionResourceId('Microsoft.Web/locations/managedApis', location, 'servicebus') 
     }
     displayName: '${connectionName}-connection'
-    // parameterValues: {
-    //   namespaceEndpoint : namespaceEndpoint// 'sb://sbb5h6plzryzc7i-alias.servicebus.windows.net'
-    // }
     parameterValueSet: {
       name: 'managedIdentityAuth'
       values: {
