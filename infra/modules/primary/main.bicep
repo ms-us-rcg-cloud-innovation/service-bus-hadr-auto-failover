@@ -135,6 +135,7 @@ module functionApp 'functionapp.bicep' = {
     logAnalyticsWorkspaceName: logging.outputs.logAnalyticsWorkspaceName
     managedIdentityName: managedIdentity.outputs.managedIdentityName
     storageAcctConnStringName: storageAccount.outputs.connStringSecretName
+    serviceBusConnStringName: servicebusAppItems.outputs.connStringSecretName
     fileShareName: storageAccount.outputs.funcFileShareName
   }
 }

@@ -7,6 +7,7 @@ param appInsightsName string
 param logAnalyticsWorkspaceName string
 param keyVaultName string
 param storageAcctConnStringName string
+param serviceBusConnStringName string
 param fileShareName string
 
 resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2021-09-30-preview' existing = {
@@ -74,7 +75,7 @@ resource configSettings 'Microsoft.Web/sites/config@2022-03-01' = {
     WEBSITE_RUN_FROM_PACKAGE: '1'
     WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${storageAcctConnStringName})'
     WEBSITE_CONTENTSHARE: fileShareName
-    // AZURE_STORAGE_CONTAINER_NAME: storageAcctContainerName
+    SERVICE_BUS_CONNECTION_STRING: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${serviceBusConnStringName})'
   }
 }
 
