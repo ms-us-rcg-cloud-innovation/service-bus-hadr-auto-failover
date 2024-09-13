@@ -136,6 +136,7 @@ module functionApp 'functionapp.bicep' = {
     managedIdentityName: managedIdentity.outputs.managedIdentityName
     storageAcctConnStringName: storageAccount.outputs.connStringSecretName
     serviceBusConnStringName: servicebusAppItems.outputs.connStringSecretName
+    serviceBusSecondaryConnStringName: 'TODO'
     fileShareName: storageAccount.outputs.funcFileShareName
   }
 }

@@ -32,22 +32,30 @@ public class ServiceBusSender {
         }
 
         if (sendToSecondary) {
-            try {
+            Thread secondaryQueueThread = new Thread(() -> {
+                try {
+                    ServiceBusSenderClient secondarySenderClient = new ServiceBusClientBuilder()
+                        .connectionString(secondaryConnectionString)
+                        .sender()
+                        .queueName(queueName)
+                        .buildClient();
 
-                ServiceBusSenderClient secondarySenderClient = new ServiceBusClientBuilder()
-                    .connectionString(secondaryConnectionString)
-                    .sender()
-                    .queueName(queueName)
-                    .buildClient();
-    
-                ServiceBusMessage secondaryMessage = message.clone();
-                secondaryMessage.setTimeToLive(Duration.ofSeconds(120));
-    
-                secondarySenderClient.sendMessage(secondaryMessage);
-                System.out.println("Message sent to secondary queue");
-            } finally {
-                secondarySenderClient.close();
-            }
+                    ServiceBusMessage secondaryMessage = message.clone();
+                    secondaryMessage.setTimeToLive(Duration.ofSeconds(120));
+
+                    secondarySenderClient.sendMessage(secondaryMessage)
+                        .thenRun(() -> {
+                            System.out.println("Message sent to secondary queue");
+                            secondarySenderClient.close();
+                        });
+                    
+                    System.out.println("Message sent to secondary queue");
+                } finally {
+                    secondarySenderClient.close();
+                }
+            });
+
+            secondaryQueueThread.start();
         }
     }
 }
