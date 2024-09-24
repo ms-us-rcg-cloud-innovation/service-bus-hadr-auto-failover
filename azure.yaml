@@ -1,23 +1,23 @@
 name: service-bus-hadr-auto-failover
 infra:
     provider: "bicep"
-# hooks:
-#   predown:
-#     shell: pwsh
-#     continueOnError: false
-#     interactive: false
-#     run: ./scripts/BreakServiceBusPairing.ps1
-#   predeploy:
-#     shell: pwsh
-#     continueOnError: false
-#     interactive: false
-#     run: ./scripts/DeployLogicApps.ps1
-# services:
-#   functionapp:
-#     project: ./src/Apps/MicroserviceFunctions
-#     module: modules/functionapp.bicep
-#     language: dotnet
-#     host: function
+hooks:
+  # predown:
+  #   shell: pwsh
+  #   continueOnError: false
+  #   interactive: false
+  #   run: ./scripts/BreakServiceBusPairing.ps1
+  predeploy:
+    shell: pwsh
+    continueOnError: false
+    interactive: false
+    run: ./scripts/DeployLogicApps.ps1
+services:
+  functionapp:
+    project: ./src/FunctionApps/
+    module: modules/functionapp.bicep
+    language: java
+    host: function
 workflows:
   up:
   - azd: provision

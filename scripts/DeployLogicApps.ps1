@@ -13,7 +13,7 @@ Write-Host "- Setting up Logic App"
 
 Compress-Archive -Path .\src\LogicApps\* -DestinationPath .\output\workflows.zip -Force
 
-az logicapp deployment source config-zip --name $logicAppName  --resource-group $resourceGroupName --src .\output\workflows.zip
+az logicapp deployment source config-zip --name $logicAppName --resource-group $resourceGroupName --src .\output\workflows.zip
 Write-Host "- Logic App Setup Complete for $logicAppName in $resourceGroupName."
 
 Pop-Location

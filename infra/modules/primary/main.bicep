@@ -134,9 +134,10 @@ module functionApp 'functionapp.bicep' = {
     tags: tags
     logAnalyticsWorkspaceName: logging.outputs.logAnalyticsWorkspaceName
     managedIdentityName: managedIdentity.outputs.managedIdentityName
-    storageAcctConnStringName: storageAccount.outputs.connStringSecretName
-    serviceBusConnStringName: servicebusAppItems.outputs.connStringSecretName
-    serviceBusSecondaryConnStringName: 'TODO'
+    storageAcctConnStringSecretName: storageAccount.outputs.connStringSecretName
+    serviceBusConnStringSecretName: servicebusAppItems.outputs.connStringSecretName
+    serviceBusSecondaryConnStringSecretName: servicebusAppItems.outputs.connStringSecretName
+    geoReplicate: georeplicate
     fileShareName: storageAccount.outputs.funcFileShareName
   }
 }

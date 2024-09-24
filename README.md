@@ -65,6 +65,12 @@ To get started, authenticate with an Azure Subscription ([details](https://learn
 azd auth login
 ```
 
+Also, deployment scripts in this project leverage the Azure CLI, so authenticate with the Azure CLI as well:
+
+```powershell
+az login
+```
+
 To provision the necessary Azure resoruces and deploy the application, run the UP command:
 
 ```powershell
