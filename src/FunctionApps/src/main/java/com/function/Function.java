@@ -21,7 +21,7 @@ public class Function {
     /**
      * This function is triggered when a new message is received in the Service Bus queue.
      */
-    @FunctionName("ServiceBusQueueTriggerExample")
+    @FunctionName("ServiceBusQueueTriggerFunction")
     public void run(
             @ServiceBusQueueTrigger(name = "message", queueName = "ingress", connection = "SERVICE_BUS_ALIAS_CONNECTION_STRING") String message,
             final ExecutionContext context) {

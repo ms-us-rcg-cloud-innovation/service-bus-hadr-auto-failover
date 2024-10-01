@@ -80,15 +80,11 @@ module servicebusAppItems './service-bus/main.bicep' = {
   name: 'service-bus-items-${envLocation}-deployment'
   dependsOn: [
     servicebusNamespace
-    managedIdentity
     keyVault
   ]
   params: {
     namespaceName: servicebusNamespace.outputs.namespaceName
     secondaryNamespaceId: secondaryServiceBusNamespaceId
-    location: location
-    tags: tags
-    managedIdentityName: managedIdentity.outputs.managedIdentityName
     keyVaultName: keyVault.outputs.keyVaultName
     georeplicate: georeplicate
   }

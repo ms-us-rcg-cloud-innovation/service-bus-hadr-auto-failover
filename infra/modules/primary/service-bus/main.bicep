@@ -1,13 +1,10 @@
-param location string
+
 param namespaceName string
 param secondaryNamespaceId string
-param managedIdentityName string
 param keyVaultName string
 
 @description('If true, the Service Bus namespace will be created with Geo-Replication enabled. If false, the Service Bus namespace will be created without Geo-Replication.')
 param georeplicate bool
-
-param tags object
 
 resource namespace 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' existing = {
   name: namespaceName
@@ -65,17 +62,5 @@ resource serviceBusConnectionStringSecret 'Microsoft.KeyVault/vaults/secrets@202
   }
 }
 
-module connection 'connection.bicep' = {
-  name: 'service-bus-${namespaceName}-connection-deployment'
-  dependsOn: dependsOn
-  params: {
-    location: location
-    tags: tags
-    namespaceEndpoint: endpoint
-    managedIdentityName: managedIdentityName
-  }
-}
-
 output pairingAlias string = serviceBusAlias.name
-output connectionName string = connection.outputs.name
 output connStringSecretName string = serviceBusConnectionStringSecret.name

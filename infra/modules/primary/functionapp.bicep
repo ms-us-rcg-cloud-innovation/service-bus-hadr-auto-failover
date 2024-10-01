@@ -58,6 +58,7 @@ resource functionApp 'Microsoft.Web/sites@2021-03-01' = {
     siteConfig: {
       ftpsState: 'FtpsOnly'
       minTlsVersion: '1.2'
+      javaVersion: '17'
     }
     httpsOnly: true
   }
