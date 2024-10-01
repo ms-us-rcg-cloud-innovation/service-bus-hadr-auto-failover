@@ -2,6 +2,7 @@
 param namespaceName string
 param secondaryNamespaceId string
 param keyVaultName string
+param logAnalyticsWorkspaceName string
 
 @description('If true, the Service Bus namespace will be created with Geo-Replication enabled. If false, the Service Bus namespace will be created without Geo-Replication.')
 param georeplicate bool
@@ -12,6 +13,10 @@ resource namespace 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' existing
 
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
   name: keyVaultName
+}
+
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+  name: logAnalyticsWorkspaceName
 }
 
 module queueIngress 'queue.bicep' = {
@@ -59,6 +64,26 @@ resource serviceBusConnectionStringSecret 'Microsoft.KeyVault/vaults/secrets@202
   dependsOn: dependsOn
   properties: {
     value: 'Endpoint=${endpoint}/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=${listKeys('${serviceBusResourceId}/AuthorizationRules/RootManageSharedAccessKey', apiVersion).primaryKey}'
+  }
+}
+
+resource diagSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  scope: namespace
+  name: 'diag-${namespace.name}'
+  properties: {
+    workspaceId: logAnalyticsWorkspace.id
+    logs: [
+      {
+        category: 'OperationalLogs'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
   }
 }
 
