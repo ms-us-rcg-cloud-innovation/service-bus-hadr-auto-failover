@@ -3,6 +3,7 @@ param namespaceName string
 param secondaryNamespaceId string
 param keyVaultName string
 param logAnalyticsWorkspaceName string
+param managedIdentityName string
 
 @description('If true, the Service Bus namespace will be created with Geo-Replication enabled. If false, the Service Bus namespace will be created without Geo-Replication.')
 param georeplicate bool
@@ -84,6 +85,16 @@ resource diagSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview'
         enabled: true
       }
     ]
+  }
+}
+
+module chaosStudio 'chaosstudio.bicep' = {
+  name: 'chaos-studio-${namespaceName}-deployment'
+  params: {
+    namespaceName: namespaceName
+    experimentName: 'chaos-sb-${namespaceName}-fault'
+    managedIdentityName: managedIdentityName
+    location: namespace.location
   }
 }
 

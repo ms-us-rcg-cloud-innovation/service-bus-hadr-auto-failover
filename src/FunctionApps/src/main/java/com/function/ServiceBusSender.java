@@ -3,6 +3,7 @@ import com.azure.messaging.servicebus.ServiceBusClientBuilder;
 import com.azure.messaging.servicebus.ServiceBusSenderClient;
 import com.azure.messaging.servicebus.ServiceBusMessage;
 import java.time.Duration;
+import java.util.logging.Logger;
 
 public class ServiceBusSender implements Closeable {
 
@@ -30,33 +31,28 @@ public class ServiceBusSender implements Closeable {
         }
     }
 
-    public void sendMessageToQueues(String messageContent) {
+    public void sendMessageToQueues(String messageContent, Logger logger) {
         ServiceBusMessage message = new ServiceBusMessage(messageContent);
 
-        try {
-            primarySenderClient.sendMessage(message);
-            System.out.println("Message sent to primary queue");
+        primarySenderClient.sendMessage(message);
+        logger.info("Message sent to primary queue.");
 
-            if (sendToSecondary) {
-                Thread secondaryQueueThread = new Thread(() -> {
-                    try {
-                        ServiceBusMessage secondaryMessage = message;
-                        secondaryMessage.setTimeToLive(Duration.ofSeconds(120));
-    
-                        secondarySenderClient.sendMessage(secondaryMessage);
+        if (sendToSecondary) {
+            Thread secondaryQueueThread = new Thread(() -> {
+                try {
+                    ServiceBusMessage secondaryMessage = message;
+                    secondaryMessage.setTimeToLive(Duration.ofSeconds(120));
 
-                        System.out.println("Message sent to secondary queue");
-                    }
-                    catch (Exception e) {
-                        System.out.println("Error sending message to secondary queue: " + e.getMessage());
-                    }
-                });
-    
-                secondaryQueueThread.start();
-            }
-        }
-        catch (Exception e) {
-            System.out.println("Error sending message to primary queue: " + e.getMessage());
+                    secondarySenderClient.sendMessage(secondaryMessage);
+
+                    logger.info("Message sent to secondary queue");
+                }
+                catch (Exception e) {
+                    logger.severe("Error sending message to secondary queue: " + e.getMessage());
+                }
+            });
+
+            secondaryQueueThread.start();
         }
     }
 

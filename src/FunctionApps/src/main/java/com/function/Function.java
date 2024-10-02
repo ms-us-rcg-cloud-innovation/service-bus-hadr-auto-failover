@@ -24,7 +24,7 @@ public class Function {
     @FunctionName("ServiceBusQueueTriggerFunction")
     public void run(
             @ServiceBusQueueTrigger(name = "message", queueName = "ingress", connection = "SERVICE_BUS_ALIAS_CONNECTION_STRING") String message,
-            final ExecutionContext context) {
+            final ExecutionContext context) throws Exception {
 
         context.getLogger().info("Java Service Bus queue trigger processed a message: " + message);
         ServiceBusSender sender = null;
@@ -33,17 +33,18 @@ public class Function {
 
             sender = new ServiceBusSender(primaryConnectionString, secondaryConnectionString, sendToSecondary);
 
-            sender.sendMessageToQueues("Processing message content.");
+            sender.sendMessageToQueues("Processing message content.", context.getLogger());
 
             // Sleep the active thread for the generated duration
             int sleepDuration = ThreadLocalRandom.current().nextInt(1, 7);
             context.getLogger().info("Sleeping for " + sleepDuration + " seconds.");
             Thread.sleep(sleepDuration * 1000);
             context.getLogger().info("Finished sleeping for " + sleepDuration + " seconds.");
-
-        } catch (InterruptedException e) {
-            context.getLogger().severe("SB function processing error: " + e.getMessage());
-        } finally {
+        } catch (Exception e) {
+            context.getLogger().severe("SB function processing error - Exception: " + e.getMessage());
+            throw e;
+        } 
+        finally {
             context.getLogger().info("SB function processing completed.");
 
             if (sender != null) {

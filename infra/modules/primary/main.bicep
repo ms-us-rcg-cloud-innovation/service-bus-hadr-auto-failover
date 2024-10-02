@@ -87,6 +87,7 @@ module servicebusAppItems './service-bus/main.bicep' = {
     secondaryNamespaceId: secondaryServiceBusNamespaceId
     keyVaultName: keyVault.outputs.keyVaultName
     logAnalyticsWorkspaceName: logging.outputs.logAnalyticsWorkspaceName
+    managedIdentityName: managedIdentity.outputs.managedIdentityName
     georeplicate: georeplicate
   }
 } 
