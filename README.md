@@ -45,13 +45,14 @@ cd scripts
 Establish required environment variables:
 
 ```powershell
-$env:AZURE_ENV_NAME="sb-hadr" # custom project name
+$env:AZURE_ENV_NAME="sb-hadr4" # custom project name
 $env:AZURE_LOCATION_PRIMARY="eastus2" # azure region
 $env:AZURE_LOCATION_SECONDARY="centralus" # azure region
+$env:NOTIFICATION_EMAIL="<valid email address>"
 
 # Optional flag to test apps and logic without multiple premium Service Bus instances to reduce costs when testing.
 # Set this value to "true" to test multi region pairing and automated failover logic (default)
-# Set this value to "false" to deploy a cost-friendly sample of resources and to test basic logic (not failover)
+# Set this value to "false" to deploy a cost-friendly sample of resources and to test basic logic (not real failover)
 $env:AZURE_SERVICEBUS_GEO_REPLICATE="true"
 ```
 
@@ -78,6 +79,10 @@ azd up
 ```
 
 Once the infrastructure is established and the application is deployed, navigate to the [Azure Portal](https://portal.azure.com) to view the provisioned resources.
+
+### Additional Setup Requirements
+
+In the Azure Portal, navigate to API Connections, select the 'office365' connection, select to Edit API Connection, and click Authorize. In the dialog window, authenticate with credentials that have access to an Office 365 account. Once authentication is successful, click Save on the Edit API Connection screen to persist the auth values with the API Connection.
 
 ## Verify
 

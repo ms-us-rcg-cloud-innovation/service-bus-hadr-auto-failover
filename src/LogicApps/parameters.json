@@ -1,3 +1,26 @@
 {
-
+    "resource_group_name": {
+        "type": "String",
+        "value": "@appsetting('AZURE_RESOURCE_GROUP_NAME')"
+    },
+    "service_bus_namespace": {
+        "type": "String",
+        "value": "@appsetting('AZURE_SERVICE_BUS_PRIMARY_NAMESPACE')"
+    },
+    "service_bus_queue": {
+        "type": "String",
+        "value": "processing"
+    },
+    "subscription_id": {
+        "type": "String",
+        "value": "@appsetting('AZURE_SUBSCRIPTION_ID')"
+    },
+    "notification_email": {
+        "type": "String",
+        "value": "@appsetting('NOTIFICATION_EMAIL')"
+    },
+    "managed_identity_id": {
+        "type": "String",
+        "value": "@appsetting('AZURE_MANAGED_IDENTITY_ID')"
+    }
 }

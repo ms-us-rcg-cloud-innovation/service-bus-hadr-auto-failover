@@ -95,3 +95,19 @@ resource chaosExperiment 'Microsoft.Chaos/experiments@2024-01-01' = {
     ]
   }
 }
+
+@description('This is the built-in Azure Service Bus Data Owner role. See https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#security')
+resource serviceBusDataOwnerRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
+  scope: subscription()
+  name: '090c5cfd-751d-490a-894a-3ce6f1109419'
+}
+
+resource ownerRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
+  name: guid(chaosExperiment.id, managedIdentity.id, serviceBusDataOwnerRoleDefinition.id)
+  scope: namespace
+  properties: {
+    roleDefinitionId: serviceBusDataOwnerRoleDefinition.id
+    principalId: managedIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+  }
+}

@@ -2,12 +2,154 @@
     "definition": {
         "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
         "actions": {
-
+            "HTTP_-_Namespace_Status_Check": {
+                "inputs": {
+                    "authentication": {
+                        "identity": "@{parameters('managed_identity_id')}",
+                        "type": "ManagedServiceIdentity"
+                    },
+                    "method": "GET",
+                    "uri": "https://management.azure.com/subscriptions/@{parameters('subscription_id')}/resourceGroups/@{parameters('resource_group_name')}/providers/Microsoft.ServiceBus/namespaces/@{parameters('service_bus_namespace')}?api-version=2024-01-01"
+                },
+                "runAfter": {},
+                "runtimeConfiguration": {
+                    "contentTransfer": {
+                        "transferMode": "Chunked"
+                    },
+                    "requestOptions": {
+                        "timeout": "PT10S"
+                    }
+                },
+                "type": "Http"
+            },
+            "HTTP_-_Queue_Status_Check": {
+                "inputs": {
+                    "authentication": {
+                        "identity": "@{parameters('managed_identity_id')}",
+                        "type": "ManagedServiceIdentity"
+                    },
+                    "method": "GET",
+                    "uri": "https://management.azure.com/subscriptions/@{parameters('subscription_id')}/resourceGroups/@{parameters('resource_group_name')}/providers/Microsoft.ServiceBus/namespaces/@{parameters('service_bus_namespace')}/queues/@{parameters('service_bus_queue')}?api-version=2024-01-01"
+                },
+                "runAfter": {
+                    "HTTP_-_Namespace_Status_Check": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "runtimeConfiguration": {
+                    "contentTransfer": {
+                        "transferMode": "Chunked"
+                    },
+                    "requestOptions": {
+                        "timeout": "PT10S"
+                    }
+                },
+                "type": "Http"
+            },
+            "If_200_Status_Codes": {
+                "actions": {},
+                "else": {
+                    "actions": {
+                        "If_Approved": {
+                            "actions": {},
+                            "else": {
+                                "actions": {}
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@body('Send_approval_email')?['SelectedOption']",
+                                            "Approve"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "Send_approval_email": [
+                                    "SUCCEEDED"
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Send_approval_email": {
+                            "inputs": {
+                                "body": {
+                                    "Message": {
+                                        "HideHTMLMessage": false,
+                                        "Importance": "Normal",
+                                        "Options": "Approve, Reject",
+                                        "ShowHTMLConfirmationDialog": false,
+                                        "Subject": "Service Bus Outage - Failover Approval Request",
+                                        "To": "@{parameters('notification_email')}"
+                                    },
+                                    "NotificationUrl": "@listCallbackUrl()"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "referenceName": "office365"
+                                    }
+                                },
+                                "path": "/approvalmail/$subscriptions"
+                            },
+                            "type": "ApiConnectionWebhook"
+                        }
+                    }
+                },
+                "expression": {
+                    "and": [
+                        {
+                            "or": [
+                                {
+                                    "equals": [
+                                        "@outputs('HTTP_-_Namespace_Status_Check')?['statusCode']",
+                                        200
+                                    ]
+                                },
+                                {
+                                    "equals": [
+                                        "@outputs('HTTP_-_Namespace_Status_Check')?['statusCode']",
+                                        202
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "or": [
+                                {
+                                    "equals": [
+                                        "@outputs('HTTP_-_Queue_Status_Check')?['statusCode']",
+                                        200
+                                    ]
+                                },
+                                {
+                                    "equals": [
+                                        "@outputs('HTTP_-_Queue_Status_Check')?['statusCode']",
+                                        202
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "HTTP_-_Queue_Status_Check": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "If"
+            }
         },
         "contentVersion": "1.0.0.0",
         "outputs": {},
         "triggers": {
-
+            "Recurrence": {
+                "recurrence": {
+                    "frequency": "Hour",
+                    "interval": 2
+                },
+                "type": "Recurrence"
+            }
         }
     },
     "kind": "Stateful"

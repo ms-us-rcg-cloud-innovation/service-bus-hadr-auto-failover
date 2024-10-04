@@ -16,6 +16,9 @@ param locationSecondary string
 @description('If true, the Service Bus namespace will be created with Geo-Replication enabled. If false, the Service Bus namespace will be created without Geo-Replication.')
 param georeplicate bool = true
 
+@minLength(1)
+param notificationEmail string
+
 var tags = {
   'azd-env-name': environmentName
 }
@@ -54,6 +57,7 @@ module primary 'modules/primary/main.bicep' = {
     tags: tags
     secondaryServiceBusNamespaceId: georeplicate ? secondary.outputs.serviceBusNamespaceId : ''
     georeplicate: georeplicate
+    notificationEmail: notificationEmail
   }
 }
 

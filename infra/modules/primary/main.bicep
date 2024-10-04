@@ -14,6 +14,8 @@ param secondaryServiceBusNamespaceId string
 
 param tags object
 
+param notificationEmail string
+
 var envLocation = '${environmentName}-${location}'
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
 
@@ -92,6 +94,18 @@ module servicebusAppItems './service-bus/main.bicep' = {
   }
 } 
 
+module office365Connection 'office365connection.bicep' = {
+  name: 'office365-connection-${envLocation}-deployment'
+  dependsOn: [
+    managedIdentity
+  ]
+  params: {
+    location: location
+    tags: tags
+    managedIdentityName: managedIdentity.outputs.managedIdentityName
+  }
+}
+
 module logicApp 'logicapp.bicep' = {
   name: 'logic-app-${envLocation}-deployment'
   dependsOn: [
@@ -99,6 +113,7 @@ module logicApp 'logicapp.bicep' = {
     storageAccount
     servicebusNamespace
     servicebusAppItems
+    office365Connection
   ]
   params: {
     name: 'logic-${resourceToken}'
@@ -112,6 +127,9 @@ module logicApp 'logicapp.bicep' = {
     fileShareName: storageAccount.outputs.logicAppFileShareName
     storageAcctConnStringSecretName: storageAccount.outputs.connStringSecretName
     serviceBusConnStringSecretName: servicebusAppItems.outputs.connStringSecretName
+    serviceBusNamespaceName: servicebusNamespace.outputs.namespaceName
+    notificationEmail: notificationEmail
+    office365ConnectionName: office365Connection.outputs.name
   }
 }
 

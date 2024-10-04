@@ -1,5 +1,19 @@
 {
-    "managedApiConnections": {},
+    "managedApiConnections": {
+        "office365": {
+            "api": {
+                "id": "@appsetting('OFFICE365_CONNECTION_API_ID')"
+            },
+            "authentication": {
+                "identity": "@appsetting('AZURE_MANAGED_IDENTITY_ID')",
+                "type": "ManagedServiceIdentity"
+            },
+            "connection": {
+                "id": "@appsetting('OFFICE365_CONNECTION_RESOURCE_ID')"
+            },
+            "connectionRuntimeUrl": "@appsetting('OFFICE365_CONNECTION_RUNTIME_URL')"
+        }
+    },
     "serviceProviderConnections": {
         "serviceBus": {
             "displayName": "servicebus-connection",

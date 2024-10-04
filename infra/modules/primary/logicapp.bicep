@@ -7,8 +7,11 @@ param appInsightsName string
 param keyVaultName string
 param fileShareName string
 param serviceBusConnStringSecretName string
+param serviceBusNamespaceName string
 param storageAcctConnStringSecretName string
 param tags object
+param notificationEmail string
+param office365ConnectionName string
 
 resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2021-09-30-preview' existing = {
   name: managedIdentityName
@@ -24,6 +27,10 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06
 
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
   name: keyVaultName
+}
+
+resource office365Connection 'Microsoft.Web/connections@2016-06-01' existing = {
+  name: office365ConnectionName
 }
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2021-03-01' = {
@@ -77,6 +84,14 @@ resource logicAppAppConfigSettings 'Microsoft.Web/sites/config@2022-03-01' = {
     WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${storageAcctConnStringSecretName})'
     WEBSITE_CONTENTSHARE: fileShareName
     SERVICE_BUS_CONNECTION_STRING: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${serviceBusConnStringSecretName})'
+    AZURE_SUBSCRIPTION_ID: subscription().subscriptionId
+    AZURE_SERVICE_BUS_PRIMARY_NAMESPACE: serviceBusNamespaceName
+    AZURE_RESOURCE_GROUP_NAME: resourceGroup().name
+    AZURE_MANAGED_IDENTITY_ID: managedIdentity.id
+    NOTIFICATION_EMAIL: notificationEmail
+    OFFICE365_CONNECTION_API_ID: office365Connection.properties.api.id
+    OFFICE365_CONNECTION_RESOURCE_ID: office365Connection.id
+    OFFICE365_CONNECTION_RUNTIME_URL: office365Connection.properties.connectionRuntimeUrl
   }
 }
 
