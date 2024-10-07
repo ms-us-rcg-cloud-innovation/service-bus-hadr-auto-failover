@@ -18,9 +18,7 @@ resource connection 'Microsoft.Web/connections@2016-06-01' = {
       id: subscriptionResourceId('Microsoft.Web/locations/managedApis', location, 'office365') 
     }
     displayName: '${connectionName}-connection'
-    parameterValues: {
-      authenticatedUser : 'username_placeholder'
-    }
+    parameterValues: {}
   }
 }
 

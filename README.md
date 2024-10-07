@@ -45,7 +45,7 @@ cd scripts
 Establish required environment variables:
 
 ```powershell
-$env:AZURE_ENV_NAME="sb-hadr4" # custom project name
+$env:AZURE_ENV_NAME="sb-hadr" # custom project name
 $env:AZURE_LOCATION_PRIMARY="eastus2" # azure region
 $env:AZURE_LOCATION_SECONDARY="centralus" # azure region
 $env:NOTIFICATION_EMAIL="<valid email address>"

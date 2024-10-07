@@ -32,7 +32,7 @@
                     "uri": "https://management.azure.com/subscriptions/@{parameters('subscription_id')}/resourceGroups/@{parameters('resource_group_name')}/providers/Microsoft.ServiceBus/namespaces/@{parameters('service_bus_namespace')}/queues/@{parameters('service_bus_queue')}?api-version=2024-01-01"
                 },
                 "runAfter": {
-                    "HTTP_-_Namespace_Status_Check": [
+                    "Parse_JSON_-_Namespace": [
                         "SUCCEEDED"
                     ]
                 },
@@ -46,7 +46,7 @@
                 },
                 "type": "Http"
             },
-            "If_200_Status_Codes": {
+            "If_200_Status_Codes_and_Active_Status": {
                 "actions": {},
                 "else": {
                     "actions": {
@@ -129,15 +129,91 @@
                                     ]
                                 }
                             ]
+                        },
+                        {
+                            "and": [
+                                {
+                                    "equals": [
+                                        "@body('Parse_JSON_-_Namespace')?['properties']?['status']",
+                                        "Active"
+                                    ]
+                                },
+                                {
+                                    "equals": [
+                                        "@body('Parse_JSON_-_Queue')?['properties']?['status']",
+                                        "Active"
+                                    ]
+                                }
+                            ]
                         }
                     ]
+                },
+                "runAfter": {
+                    "Parse_JSON_-_Queue": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "If"
+            },
+            "Parse_JSON_-_Namespace": {
+                "inputs": {
+                    "content": "@body('HTTP_-_Namespace_Status_Check')",
+                    "schema": {
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "properties": {
+                                "properties": {
+                                    "status": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "runAfter": {
+                    "HTTP_-_Namespace_Status_Check": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "ParseJson"
+            },
+            "Parse_JSON_-_Queue": {
+                "inputs": {
+                    "content": "@body('HTTP_-_Queue_Status_Check')",
+                    "schema": {
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "properties": {
+                                "properties": {
+                                    "status": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "type": "object"
+                    }
                 },
                 "runAfter": {
                     "HTTP_-_Queue_Status_Check": [
                         "SUCCEEDED"
                     ]
                 },
-                "type": "If"
+                "type": "ParseJson"
             }
         },
         "contentVersion": "1.0.0.0",
