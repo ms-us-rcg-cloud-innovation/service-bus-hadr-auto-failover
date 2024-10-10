@@ -10,7 +10,9 @@ param location string
 @description('If true, the Service Bus namespace will be created with Geo-Replication enabled. If false, the Service Bus namespace will be created without Geo-Replication.')
 param georeplicate bool
 
+param secondaryServiceBusNamespaceName string
 param secondaryServiceBusNamespaceId string
+param secondaryResourceGroupName string
 
 param tags object
 
@@ -127,7 +129,10 @@ module logicApp 'logicapp.bicep' = {
     fileShareName: storageAccount.outputs.logicAppFileShareName
     storageAcctConnStringSecretName: storageAccount.outputs.connStringSecretName
     serviceBusConnStringSecretName: servicebusAppItems.outputs.connStringSecretName
-    serviceBusNamespaceName: servicebusNamespace.outputs.namespaceName
+    serviceBusPrimaryNamespaceName: servicebusNamespace.outputs.namespaceName
+    serviceBusAlias: georeplicate ? servicebusAppItems.outputs.pairingAlias : servicebusNamespace.outputs.namespaceName
+    serviceBusSecondaryNamespaceName: georeplicate ? secondaryServiceBusNamespaceName : servicebusNamespace.outputs.namespaceName
+    resourceGroupNameSecondary: georeplicate ? secondaryResourceGroupName : resourceGroup().name
     notificationEmail: notificationEmail
     office365ConnectionName: office365Connection.outputs.name
   }

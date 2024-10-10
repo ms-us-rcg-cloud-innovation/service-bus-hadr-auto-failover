@@ -56,12 +56,15 @@ module primary 'modules/primary/main.bicep' = {
     location: locationPrimary
     tags: tags
     secondaryServiceBusNamespaceId: georeplicate ? secondary.outputs.serviceBusNamespaceId : ''
+    secondaryResourceGroupName: georeplicate ? rgSecondary.name : rgPrimary.name
+    secondaryServiceBusNamespaceName: georeplicate ? secondary.outputs.serviceBusNamespaceName : ''
     georeplicate: georeplicate
     notificationEmail: notificationEmail
   }
 }
 
 output AZURE_RESOURCE_GROUP_NAME string = rgPrimary.name
+output AZURE_RESOURCE_GROUP string = rgPrimary.name
 output AZURE_LOGIC_APP_NAME string = primary.outputs.logicAppName
 output AZURE_SERVICEBUS_PRIMARY_NAMESPACE string = primary.outputs.serviceBusNamespaceName
 output AZURE_SERVICEBUS_PAIRING_ALIAS string = primary.outputs.serviceBusPairingAlias

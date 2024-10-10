@@ -5,6 +5,12 @@ subscriptionId="$AZURE_SUBSCRIPTION_ID"
 resourceGroup="$AZURE_RESOURCE_GROUP_NAME"
 serviceBusPrimaryNamespace="$AZURE_SERVICEBUS_PRIMARY_NAMESPACE"
 alias="$AZURE_SERVICEBUS_PAIRING_ALIAS"
+geoReplication="$AZURE_SERVICEBUS_GEO_REPLICATE"
+
+if [ "$geoReplication" != "true" ]; then
+    echo "Geo-replication is not enabled. Exiting script."
+    exit 0
+fi
 
 echo "- Breaking Service Bus Pairing Alias $alias in Resource Group $resourceGroup"
 

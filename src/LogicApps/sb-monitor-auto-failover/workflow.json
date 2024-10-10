@@ -9,7 +9,7 @@
                         "type": "ManagedServiceIdentity"
                     },
                     "method": "GET",
-                    "uri": "https://management.azure.com/subscriptions/@{parameters('subscription_id')}/resourceGroups/@{parameters('resource_group_name')}/providers/Microsoft.ServiceBus/namespaces/@{parameters('service_bus_namespace')}?api-version=2024-01-01"
+                    "uri": "https://management.azure.com/subscriptions/@{parameters('subscription_id')}/resourceGroups/@{parameters('resource_group_name_primary')}/providers/Microsoft.ServiceBus/namespaces/@{parameters('service_bus_namespace_primary')}?api-version=2024-01-01"
                 },
                 "runAfter": {},
                 "runtimeConfiguration": {
@@ -29,7 +29,7 @@
                         "type": "ManagedServiceIdentity"
                     },
                     "method": "GET",
-                    "uri": "https://management.azure.com/subscriptions/@{parameters('subscription_id')}/resourceGroups/@{parameters('resource_group_name')}/providers/Microsoft.ServiceBus/namespaces/@{parameters('service_bus_namespace')}/queues/@{parameters('service_bus_queue')}?api-version=2024-01-01"
+                    "uri": "https://management.azure.com/subscriptions/@{parameters('subscription_id')}/resourceGroups/@{parameters('resource_group_name_primary')}/providers/Microsoft.ServiceBus/namespaces/@{parameters('service_bus_namespace_primary')}/queues/@{parameters('service_bus_queue')}?api-version=2024-01-01"
                 },
                 "runAfter": {
                     "Parse_JSON_-_Namespace": [
@@ -51,7 +51,56 @@
                 "else": {
                     "actions": {
                         "If_Approved": {
-                            "actions": {},
+                            "actions": {
+                                "HTTP_-_Test_Reset_-_Activate_Queue": {
+                                    "inputs": {
+                                        "authentication": {
+                                            "identity": "@{parameters('managed_identity_id')}",
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "body": {
+                                            "properties": {
+                                                "status": "Active"
+                                            }
+                                        },
+                                        "method": "PUT",
+                                        "uri": "https://management.azure.com/subscriptions/@{parameters('subscription_id')}/resourceGroups/@{parameters('resource_group_name')}/providers/Microsoft.ServiceBus/namespaces/@{parameters('service_bus_namespace_primary')}/queues/@{parameters('service_bus_queue')}?api-version=2024-01-01"
+                                    },
+                                    "runtimeConfiguration": {
+                                        "contentTransfer": {
+                                            "transferMode": "Chunked"
+                                        },
+                                        "requestOptions": {
+                                            "timeout": "PT10S"
+                                        }
+                                    },
+                                    "type": "Http"
+                                },
+                                "HTTP_-_Trigger_Failover": {
+                                    "inputs": {
+                                        "authentication": {
+                                            "identity": "@{parameters('managed_identity_id')}",
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "method": "POST",
+                                        "uri": "https://management.azure.com/subscriptions/@{parameters('subscription_id')}/resourceGroups/@{parameters('resource_group_name_secondary')}/providers/Microsoft.ServiceBus/namespaces/@{parameters('service_bus_namespace_secondary')}/disasterRecoveryConfigs/@{parameters('service_bus_alias')}/failover?api-version=2024-01-01"
+                                    },
+                                    "runAfter": {
+                                        "HTTP_-_Test_Reset_-_Activate_Queue": [
+                                            "SUCCEEDED"
+                                        ]
+                                    },
+                                    "runtimeConfiguration": {
+                                        "contentTransfer": {
+                                            "transferMode": "Chunked"
+                                        },
+                                        "requestOptions": {
+                                            "timeout": "PT10S"
+                                        }
+                                    },
+                                    "type": "Http"
+                                }
+                            },
                             "else": {
                                 "actions": {}
                             },
@@ -222,7 +271,7 @@
             "Recurrence": {
                 "recurrence": {
                     "frequency": "Hour",
-                    "interval": 2
+                    "interval": 1
                 },
                 "type": "Recurrence"
             }

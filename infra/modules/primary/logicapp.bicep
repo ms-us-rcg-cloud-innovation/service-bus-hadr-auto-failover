@@ -7,7 +7,10 @@ param appInsightsName string
 param keyVaultName string
 param fileShareName string
 param serviceBusConnStringSecretName string
-param serviceBusNamespaceName string
+param serviceBusPrimaryNamespaceName string
+param serviceBusSecondaryNamespaceName string
+param serviceBusAlias string
+param resourceGroupNameSecondary string
 param storageAcctConnStringSecretName string
 param tags object
 param notificationEmail string
@@ -85,8 +88,11 @@ resource logicAppAppConfigSettings 'Microsoft.Web/sites/config@2022-03-01' = {
     WEBSITE_CONTENTSHARE: fileShareName
     SERVICE_BUS_CONNECTION_STRING: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${serviceBusConnStringSecretName})'
     AZURE_SUBSCRIPTION_ID: subscription().subscriptionId
-    AZURE_SERVICE_BUS_PRIMARY_NAMESPACE: serviceBusNamespaceName
-    AZURE_RESOURCE_GROUP_NAME: resourceGroup().name
+    AZURE_SERVICE_BUS_PRIMARY_NAMESPACE: serviceBusPrimaryNamespaceName
+    AZURE_SERVICE_BUS_SECONDARY_NAMESPACE: serviceBusSecondaryNamespaceName
+    AZURE_SERVICE_BUS_ALIAS: serviceBusAlias
+    AZURE_RESOURCE_GROUP_NAME_PRIMARY: resourceGroup().name
+    AZURE_RESOURCE_GROUP_NAME_SECONDARY: resourceGroupNameSecondary
     AZURE_MANAGED_IDENTITY_ID: managedIdentity.id
     NOTIFICATION_EMAIL: notificationEmail
     OFFICE365_CONNECTION_API_ID: office365Connection.properties.api.id

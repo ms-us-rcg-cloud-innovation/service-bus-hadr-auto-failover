@@ -36,3 +36,4 @@ module servicebus '../shared/servicebus.bicep' = {
 } 
 
 output serviceBusNamespaceId string = servicebus.outputs.namespaceId
+output serviceBusNamespaceName string = servicebus.outputs.namespaceName

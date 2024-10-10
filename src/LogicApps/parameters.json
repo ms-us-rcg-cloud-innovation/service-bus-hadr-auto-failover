@@ -1,11 +1,31 @@
 {
-    "resource_group_name": {
+    "managed_identity_id": {
         "type": "String",
-        "value": "@appsetting('AZURE_RESOURCE_GROUP_NAME')"
+        "value": "@appsetting('AZURE_MANAGED_IDENTITY_ID')"
     },
-    "service_bus_namespace": {
+    "notification_email": {
+        "type": "String",
+        "value": "@appsetting('NOTIFICATION_EMAIL')"
+    },
+    "resource_group_name_primary": {
+        "type": "String",
+        "value": "@appsetting('AZURE_RESOURCE_GROUP_NAME_PRIMARY')"
+    },
+    "resource_group_name_secondary": {
+        "type": "String",
+        "value": "@appsetting('AZURE_RESOURCE_GROUP_NAME_SECONDARY')"
+    },
+    "service_bus_alias": {
+        "type": "String",
+        "value": "@appsetting('AZURE_SERVICE_BUS_ALIAS')"
+    },
+    "service_bus_namespace_primary": {
         "type": "String",
         "value": "@appsetting('AZURE_SERVICE_BUS_PRIMARY_NAMESPACE')"
+    },
+    "service_bus_namespace_secondary": {
+        "type": "String",
+        "value": "@appsetting('AZURE_SERVICE_BUS_SECONDARY_NAMESPACE')"
     },
     "service_bus_queue": {
         "type": "String",
@@ -14,13 +34,5 @@
     "subscription_id": {
         "type": "String",
         "value": "@appsetting('AZURE_SUBSCRIPTION_ID')"
-    },
-    "notification_email": {
-        "type": "String",
-        "value": "@appsetting('NOTIFICATION_EMAIL')"
-    },
-    "managed_identity_id": {
-        "type": "String",
-        "value": "@appsetting('AZURE_MANAGED_IDENTITY_ID')"
     }
 }
